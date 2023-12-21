@@ -19,4 +19,13 @@ class BlogService {
 
     return Blog.fromJson(jsonData);
   }
+
+  Future<bool> deleteBlog(Uri url) async {
+    final response = await http.delete(url);
+
+    if (response.statusCode == 201) {
+      return true;
+    }
+    return false;
+  }
 }

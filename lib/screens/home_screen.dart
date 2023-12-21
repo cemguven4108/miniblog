@@ -23,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    //fetchBlogs();
     _initState();
   }
 
@@ -32,18 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
       Uri.parse("https://tobetoapi.halitkalayci.com/api/Articles"),
     );
     blogList.addAll(blogs);
-    setState(() {});
-  }
-
-  fetchBlogs() async {
-    Uri url = Uri.parse("https://tobetoapi.halitkalayci.com/api/Articles");
-    final response = await http.get(url);
-    final jsonData = json.decode(response.body);
-
-    for (Map<String, Object?> json in jsonData) {
-      blogList.add(Blog.fromJson(json));
-    }
-
     setState(() {});
   }
 
@@ -61,7 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
               );
 
               if (result == true) {
-                fetchBlogs();
+                blogList.clear();
+                _initState();
               }
             },
             icon: const Icon(Icons.add),
@@ -74,12 +62,23 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : RefreshIndicator(
               onRefresh: () async {
-                fetchBlogs();
+                blogList.clear();
+                _initState();
               },
               child: ListView.builder(
                 itemCount: blogList.length,
                 itemBuilder: (context, index) {
-                  return BlogItem(blog: blogList[index]);
+                  return Dismissible(
+                    key: ValueKey(blogList[index].id),
+                    onDismissed: (_) {
+                      blogService.deleteBlog(
+                        Uri.parse(
+                          "https://tobetoapi.halitkalayci.com/api/Articles/${blogList[index].id}",
+                        ),
+                      );
+                    },
+                    child: BlogItem(blog: blogList[index]),
+                  );
                 },
               ),
             ),
