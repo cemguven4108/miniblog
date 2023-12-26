@@ -1,8 +1,10 @@
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:miniblog/blocs/article_bloc/article_bloc.dart';
+import 'package:miniblog/blocs/article_bloc/article_event.dart';
 
 class AddBlog extends StatefulWidget {
   const AddBlog({
@@ -21,28 +23,9 @@ class _AddBlogState extends State<AddBlog> {
   String content = "";
   String author = "";
 
-  submit() async {
-    Uri url = Uri.parse("https://tobetoapi.halitkalayci.com/api/Articles");
-    var request = http.MultipartRequest("POST", url);
-
-    request.fields['Title'] = title;
-    request.fields['Content'] = content;
-    request.fields['Author'] = author;
-
-    if (selectedImage != null) {
-      http.MultipartFile file = await http.MultipartFile.fromPath("file", selectedImage!.path);
-      request.files.add(file);
-    }
-
-    final response = await request.send();
-
-    if (response.statusCode == 201) {
-      Navigator.pop(context, true);
-    }
-  }
-
   pickImage() async {
-    final selectedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+    final selectedFile =
+        await imagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       selectedImage = selectedFile;
@@ -54,16 +37,15 @@ class _AddBlogState extends State<AddBlog> {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Form(
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              if (selectedImage != null)
-                Image.file(File(selectedImage!.path)),
+              if (selectedImage != null) Image.file(File(selectedImage!.path)),
               ElevatedButton(
                 onPressed: () => pickImage(),
-                child: Text("Fotograf sec"),
+                child: const Text("Fotograf sec"),
               ),
               TextFormField(
                 decoration: const InputDecoration(
@@ -112,7 +94,17 @@ class _AddBlogState extends State<AddBlog> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    submit();
+
+                    if (selectedImage != null) {
+                      context.read<ArticleBloc>().add(AddArticle(
+                            title: title,
+                            content: content,
+                            author: author,
+                            file: selectedImage!,
+                          ));
+                    }
+
+                    Navigator.of(context).pop();
                   }
                 },
                 child: const Text("Blog ekle"),
