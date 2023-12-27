@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: BlocBuilder<ArticleBloc, ArticleState>(
         builder: (context, state) {
-          if (state is ArticlesInitial || state is ArticlesSuccess) {
+          if (state is! ArticlesLoaded) {
             context.read<ArticleBloc>().add(FetchArticles());
 
             return const Center(
@@ -41,25 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          if (state is ArticlesLoaded) {
-            return ListView.builder(
-              itemCount: state.blogs.length,
-              itemBuilder: (context, index) {
-                return Dismissible(
-                  key: ValueKey(state.blogs[index].id),
-                  onDismissed: (direction) => context.read<ArticleBloc>().add(
-                        DeleteArticle(id: state.blogs[index].id),
-                      ),
-                  child: BlogItem(
-                    blog: state.blogs[index],
-                  ),
-                );
-              },
-            );
-          }
-
-          return const Center(
-            child: Text("bilinmedik durum"),
+          return ListView.builder(
+            itemCount: state.blogs.length,
+            itemBuilder: (context, index) {
+              return Dismissible(
+                key: ValueKey(state.blogs[index].id),
+                onDismissed: (direction) => context.read<ArticleBloc>().add(
+                      DeleteArticle(id: state.blogs[index].id),
+                    ),
+                child: BlogItem(
+                  blog: state.blogs[index],
+                ),
+              );
+            },
           );
         },
       ),

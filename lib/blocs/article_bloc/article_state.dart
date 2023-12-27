@@ -15,3 +15,11 @@ class ArticlesLoaded extends ArticleState {
 class ArticlesError extends ArticleState {}
 
 class ArticlesSuccess extends ArticleState {}
+
+class ArticleLoading extends ArticleState {}
+
+class ArticleLoaded extends ArticleState {
+  final Blog blog;
+
+  ArticleLoaded({required this.blog});
+}
