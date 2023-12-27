@@ -26,7 +26,7 @@ class BlogItem extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => DetailsScreen(id: blog.id),
+                    builder: (context) => DetailsScreen(blog: blog),
                   ),
                 );
               },

@@ -6,12 +6,6 @@ class ArticlesInitial extends ArticleState {}
 
 class ArticlesLoading extends ArticleState {}
 
-class ArticleLoaded extends ArticleState {
-  final Blog blog;
-
-  ArticleLoaded({required this.blog});
-}
-
 class ArticlesLoaded extends ArticleState {
   final List<Blog> blogs;
 

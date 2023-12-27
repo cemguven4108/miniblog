@@ -33,23 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: BlocBuilder<ArticleBloc, ArticleState>(
         builder: (context, state) {
-          if (state is ArticlesInitial || state is ArticlesSuccess || state is ArticleLoaded) {
+          if (state is ArticlesInitial || state is ArticlesSuccess) {
             context.read<ArticleBloc>().add(FetchArticles());
 
             return const Center(
               child: Text("istek atiliyor"),
-            );
-          }
-
-          if (state is ArticlesLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (state is ArticlesError) {
-            return const Center(
-              child: Text("istek hatali"),
             );
           }
 
