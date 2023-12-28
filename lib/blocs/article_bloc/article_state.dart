@@ -23,3 +23,7 @@ class ArticleLoaded extends ArticleState {
 
   ArticleLoaded({required this.blog});
 }
+
+class ArticleAdding extends ArticleState {}
+
+class ArticleDeleting extends ArticleState {}

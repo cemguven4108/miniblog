@@ -16,6 +16,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _scrollController = ScrollController();
+  bool atBottom = false;
+
+  void _scroll() {
+    if (!atBottom) {
+      setState(() {
+        atBottom = true;
+      });
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    } else {
+      setState(() {
+        atBottom = false;
+      });
+      _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+    }
+  }
+
+  Future<void> _refresh() async {
+    return await Future(
+      () => context.read<ArticleBloc>().add(FetchArticles()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,31 +54,54 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: BlocBuilder<ArticleBloc, ArticleState>(
-        builder: (context, state) {
-          if (state is! ArticlesLoaded) {
-            context.read<ArticleBloc>().add(FetchArticles());
-
-            return const Center(
-              child: Text("istek atiliyor"),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: state.blogs.length,
-            itemBuilder: (context, index) {
-              return Dismissible(
-                key: ValueKey(state.blogs[index].id),
-                onDismissed: (direction) => context.read<ArticleBloc>().add(
-                      DeleteArticle(id: state.blogs[index].id),
-                    ),
-                child: BlogItem(
-                  blog: state.blogs[index],
-                ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: BlocBuilder<ArticleBloc, ArticleState>(
+          buildWhen: (previous, current) =>
+              previous != current && current is ArticlesLoaded,
+          builder: (context, state) {
+            if (state is ArticlesError) {
+              return const Center(
+                child: Text("Hata!"),
               );
-            },
-          );
-        },
+            }
+
+            if (state is! ArticlesLoaded) {
+              context.read<ArticleBloc>().add(FetchArticles());
+
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return ListView.builder(
+              controller: _scrollController,
+              shrinkWrap: true,
+              itemCount: state.blogs.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                  key: ValueKey(state.blogs[index].id),
+                  onDismissed: (direction) {
+                    context.read<ArticleBloc>().add(
+                          DeleteArticle(id: state.blogs[index].id),
+                        );
+                    _refresh();
+                  },
+                  child: BlogItem(
+                    blog: state.blogs[index],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: _scroll,
+        child: atBottom
+            ? const Icon(Icons.arrow_upward)
+            : const Icon(
+                Icons.arrow_downward,
+              ),
       ),
     );
   }

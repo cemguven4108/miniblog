@@ -21,7 +21,8 @@ class DetailsScreen extends StatelessWidget {
         title: const Text("Details"),
       ),
       body: BlocBuilder<ArticleBloc, ArticleState>(
-        buildWhen: (previous, current) => previous != current && current is ArticleLoaded,
+        buildWhen: (previous, current) =>
+            previous != current && current is ArticleLoaded,
         builder: (context, state) {
           if (state is! ArticleLoaded) {
             context.read<ArticleBloc>().add(FetchArticle(id: id));
@@ -65,7 +66,6 @@ class DetailsScreen extends StatelessWidget {
               ),
             );
           }
-
           return Center();
         },
       ),

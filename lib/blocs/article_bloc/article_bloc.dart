@@ -30,6 +30,8 @@ class ArticleBloc extends Bloc<ArticleEvent, ArticleState> {
   }
 
   void _onAdd(AddArticle event, Emitter<ArticleState> emit) async {
+    emit(ArticleAdding());
+
     final response = await articleRepository.addBlog(
       event.title,
       event.content,
@@ -44,6 +46,8 @@ class ArticleBloc extends Bloc<ArticleEvent, ArticleState> {
   }
 
   void _onDelete(DeleteArticle event, Emitter<ArticleState> emit) async {
+    emit(ArticleDeleting());
+
     final response = await articleRepository.deleteBlog(
       event.id,
     );
